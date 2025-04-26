@@ -1,57 +1,69 @@
 package binary_search;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Scanner;
 
 public class logistics {
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
 
-        // Чтение входных данных
-        int N = scanner.nextInt();
-        int K = scanner.nextInt();
-        int[] weights = new int[N];
+    public static boolean canAllocate(Integer[] itemWeights, int maxCapacity, int numVehicles) {
+        Integer[] sortedWeights = itemWeights.clone();
+        Arrays.sort(sortedWeights, Collections.reverseOrder());
+        int[] vehicles = new int[numVehicles];
 
-        for (int i = 0; i < N; i++) {
-            weights[i] = scanner.nextInt();
-        }
-
-        System.out.println(minMaxCapacity(weights, K));
-    }
-
-    private static boolean canDistribute(int[] weights, int maxCapacity, int K) {
-        int currentWeight = 0;
-        int trucksUsed = 1;
-
-        for (int weight : weights) {
-            if (currentWeight + weight > maxCapacity) {
-                trucksUsed++;
-                currentWeight = weight;
-                if (trucksUsed > K) {
-                    return false;
-                }
-            } else {
-                currentWeight += weight;
+        for (int weight : sortedWeights) {
+            if (weight > maxCapacity) {
+                return false;
             }
+
+            int minRemaining = Integer.MAX_VALUE;
+            int bestIdx = -1;
+            for (int i = 0; i < numVehicles; i++) {
+                int remaining = maxCapacity - vehicles[i];
+                if (remaining >= weight && remaining < minRemaining) {
+                    minRemaining = remaining;
+                    bestIdx = i;
+                }
+            }
+
+            if (bestIdx == -1) {
+                return false;
+            }
+
+            vehicles[bestIdx] += weight;
         }
 
         return true;
     }
-    private static int minMaxCapacity(int[] weights, int K) {
-        int low = 0;
-        int high = 0;
 
-        for (int weight : weights) {
-            low = Math.max(low, weight);
-            high += weight;
+    public static void findMinMaxCapacity() {
+        Scanner scanner = new Scanner(System.in);
+        int numItems = scanner.nextInt();
+        int numVehicles = scanner.nextInt();
+        Integer[] weights = new Integer[numItems];
+
+        for (int i = 0; i < numItems; i++) {
+            weights[i] = scanner.nextInt();
         }
-        while (low < high) {
-            int mid = (low + high) / 2;
-            if (canDistribute(weights, mid, K)) {
-                high = mid;
+
+        int lowerBound = Arrays.stream(weights).max(Integer::compare).get();
+        int upperBound = Arrays.stream(weights).mapToInt(Integer::intValue).sum();
+        int bestResult = upperBound;
+
+        while (lowerBound <= upperBound) {
+            int midValue = (lowerBound + upperBound) / 2;
+            if (canAllocate(weights, midValue, numVehicles)) {
+                bestResult = midValue;
+                upperBound = midValue - 1;
             } else {
-                low = mid + 1;
+                lowerBound = midValue + 1;
             }
         }
-        return low;
+
+        System.out.println(bestResult);
+    }
+
+    public static void main(String[] args) {
+        findMinMaxCapacity();
     }
 }

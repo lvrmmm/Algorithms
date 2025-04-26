@@ -5,31 +5,31 @@ import java.util.Scanner;
 public class  peak {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-
-        int N = scanner.nextInt();
-        int[] a = new int[N];
-
-        for (int i = 0; i < N; i++) {
-            a[i] = scanner.nextInt();
+        int n = scanner.nextInt();
+        int[] arr = new int[n];
+        for (int i = 0; i < n; i++) {
+            arr[i] = scanner.nextInt();
         }
 
-        int l = 0;
-        int r = N - 1;
+        System.out.println(findPeak(n, arr));
+    }
 
-        while (l <= r) {
-            int mid = (l + r) / 2;
+    public static int findPeak(int n, int[] arr) {
+        int l = 0, r = n - 1;
+        while (r > l) {
+            int m = l + (r - l) / 2;
 
-            boolean isLeftValid = mid > 0 && a[mid - 1] < a[mid];
-            boolean isRightValid = mid < N - 1 && a[mid] > a[mid + 1];
-
-            if (isLeftValid && isRightValid) {
-                System.out.println(mid);
-                return;
-            } else if (isLeftValid) {
-                l = mid + 1;
+            if (arr[m + 1] < arr[m]) {
+                if (m == 0 || arr[m - 1] < arr[m]) {
+                    return m;
+                } else {
+                    r = m - 1;
+                }
             } else {
-                r = mid - 1;
+                l = m + 1;
             }
         }
+
+        return l;
     }
 }
